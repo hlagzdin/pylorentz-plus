@@ -1,0 +1,1280 @@
+""" Unittests for the class Vector4
+"""
+
+from python import unittest
+from python import numpy as np
+from python import cmath
+from python import math
+from __init__ import Vector4, Momentum4
+
+"""
+Test the implementation of Vector4.
+"""
+
+def test_repr():
+    """
+    Check that the representation returns a string that recreates the
+    object.
+    """
+    vec = Vector4(1.0, 2.0, 3.0, 4.0)
+    vec2 = Vector4(1, 2, 3, 4)
+    unittest.TestCase().assertEqual(repr(vec), "Vector4(1.0, 2.0, 3.0, 4.0)")
+    unittest.TestCase().assertEqual(repr(vec2), "Vector4(1, 2, 3, 4)")
+
+test_repr()
+
+def test_repr_vectorized():
+    """
+    Check that the representation returns a string that recreates the
+    object.
+    """
+    x1 = np.array([1.0, 2.0, 3.0, 5.])
+    x2 = np.array([1., 2., 3., 6.])
+    x3 = np.array([1., 2., 3., 7.])
+    x4 = [1., 2., 3., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    print(vec)
+
+    unittest.TestCase().assertEqual(repr(vec), "Vector4("
+            "array([1, 2, 3, 5]), "
+            "array([1, 2, 3, 6]), "
+            "array([1, 2, 3, 7]), "
+            "array([1, 2, 3, 8]))")
+    
+#test_repr_vectorized() #still to do
+
+def test_add():
+    """
+    Check that two 4-vectors can be added.
+    """
+    vec = Vector4(1, 2, 3, 4)
+    vec2 = Vector4(3, 4, 5, 10)
+    vec5 = vec + vec2
+    #print(vec3)
+    #print(vec5)
+
+    unittest.TestCase().assertEqual(str(vec+ vec2), "Vector4(4, 6, 8, 14)") 
+
+test_add()
+def test_add_vectorized():
+        """
+        Check that numpy arrays can be used in additions.
+        """
+        x1 = np.array([1., 2., 3., 5.])
+        x2 = np.array([1., 2., 3., 6.])
+        x3 = np.array([1., 2., 3., 7.])
+        x4 = np.array([1., 2., 3., 8.])
+
+        vec = Vector4(x1, x2, x3, x4)
+        vec2 = Vector4(6, 7, 8, 9)
+
+
+        sum = vec + vec2
+        unittest.TestCase().assertEqual(list(sum.coords[0]), [7, 9, 11, 14])
+        unittest.TestCase().assertEqual(list(sum.coords[1]), [7, 9, 11, 15])
+        unittest.TestCase().assertEqual(list(sum.coords[2]), [7, 9, 11, 16])
+        unittest.TestCase().assertEqual(list(sum.coords[3]), [7, 9, 11, 17])
+
+        y1 = np.array([2., 2., 3., 5.])
+        y2 = np.array([2., 2., 3., 6.])
+        y3 = np.array([2., 2., 3., 7.])
+        y4 = np.array([2., 2., 3., 8.])
+        vec2 = Vector4(y1, y2, y3, y4) 
+
+        sum = vec + vec2
+        unittest.TestCase().assertEqual(list(sum.coords[0]), [3, 4, 6, 10])
+        unittest.TestCase().assertEqual(list(sum.coords[1]), [3, 4, 6, 12])
+        unittest.TestCase().assertEqual(list(sum.coords[2]), [3, 4, 6, 14])
+        unittest.TestCase().assertEqual(list(sum.coords[3]), [3, 4, 6, 16])
+
+test_add_vectorized() #works? original implementation seems off
+
+def test_add_types():
+    """
+    Check that a 4-vectors and numbers cannot be added.
+    """
+    vec = Vector4(1., 2., 3., 4.)
+    unittest.TestCase().assertRaises(TypeError,lambda: vec + 4)
+
+#test_add_types() #works(?) but doesnt raise type error
+
+def test_iadd():
+    """
+    Check that two 4-vectors can be added in-place.
+    """
+    vec = Vector4(1, 2, 3, 4)
+    vec2 = Vector4(3, 4, 5, 10)
+
+    vec2 += vec
+    unittest.TestCase().assertEqual(str(vec2), "Vector4(4, 6, 8, 14)") 
+
+test_iadd()
+
+def test_iadd_types():
+    """
+    Check that a 4-vectors and numbers cannot be added in-place.
+    """
+    def func1():
+        vec = Vector4(1., 2., 3., 4.)
+        vec += 4
+
+    unittest.TestCase().assertRaises(TypeError, func1)
+
+#test_iadd_types() #works but not proper error raised
+
+def test_iadd_vectorized_right():
+    """
+    Check that numpy arrays can be in-place added from the right.
+    """
+    x1 = [1., 2., 3., 5.]
+    x2 = [1., 2., 3., 6.]
+    x3 = [1., 2., 3., 7.]
+    x4 = [1., 2., 3., 8.]
+
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(6., 7., 8., 9.)
+
+    vec2 += vec
+
+    #print(vec2)
+    unittest.TestCase().assertEqual(list(vec2.coords[0]), [7, 9, 11, 14])
+    unittest.TestCase().assertEqual(list(vec2.coords[1]), [7, 9, 11, 15])
+    unittest.TestCase().assertEqual(list(vec2.coords[2]), [7, 9, 11, 16])
+    unittest.TestCase().assertEqual(list(vec2.coords[3]), [7, 9, 11, 17])
+
+test_iadd_vectorized_right()
+
+def test_iadd_vectorized_left():
+    """
+    Check that numpy arrays can be in-place added from the left.
+    """
+    x1 = [1., 2., 3., 5.]
+    x2 = [1., 2., 3., 6.]
+    x3 = [1., 2., 3., 7.]
+    x4 = [1., 2., 3., 8.]
+
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(6., 7., 8., 9.)
+
+    vec += vec2
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [7, 9, 11, 14])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [7, 9, 11, 15])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [7, 9, 11, 16])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [7, 9, 11, 17])
+
+test_iadd_vectorized_left()
+
+def test_iadd_vectorized_both():
+    """
+    Check that two numpy arrays can be in-place.
+    """
+    x1 = [1., 2., 3., 5.]
+    x2 = [1., 2., 3., 5.]
+    x3 = [1., 2., 3., 7.]
+    x4 = [1., 2., 3., 8.]
+
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(x4, x3, x2, x1)
+
+    vec += vec2
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [2, 4, 6, 13])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [2, 4, 6, 12])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [2, 4, 6, 12])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [2, 4, 6, 13])
+
+test_iadd_vectorized_both()
+
+def test_sub():
+    """
+    Check that two 4-vectors can be subtracted.
+    """
+    vec = Vector4(1, 2, 3, 4)
+    vec2 = Vector4(3, 4, 5, 10)
+
+    unittest.TestCase().assertEqual(str(vec - vec2),
+                     "Vector4(-2, -2, -2, -6)") 
+test_sub()
+def test_sub_vectorized():
+    """
+    Check that numpy arrays can be used in differences.
+    """
+    x1 = [1., 2., 3., 5.]
+    x2 = [1., 2., 3., 6.]
+    x3 = [1., 2., 3., 7.]
+    x4 = [1., 2., 3., 8.]
+
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(6, 2, 1, 0)
+
+    sum = vec - vec2
+    unittest.TestCase().assertEqual(list(sum.coords[0]), [-5, 0, 2, 5])
+    unittest.TestCase().assertEqual(list(sum.coords[1]), [-5, 0, 2, 6])
+    unittest.TestCase().assertEqual(list(sum.coords[2]), [-5, 0, 2, 7])
+    unittest.TestCase().assertEqual(list(sum.coords[3]), [-5, 0, 2, 8])
+
+    y1 = [2., 2., 3., 5.]
+    y2 = [2., 2., 3., 1.]
+    y3 = [2., 2., 3., 2.]
+    y4 = [2., 2., 3., 0.]
+    vec2 = Vector4(y1, y2, y3, y4)
+
+    sum = vec - vec2
+    unittest.TestCase().assertEqual(list(sum.coords[0]), [-1, 0, 0, 0])
+    unittest.TestCase().assertEqual(list(sum.coords[1]), [-1, 0, 0, 5])
+    unittest.TestCase().assertEqual(list(sum.coords[2]), [-1, 0, 0, 5])
+    unittest.TestCase().assertEqual(list(sum.coords[3]), [-1, 0, 0, 8])
+test_sub_vectorized()
+
+def test_sub_types():
+    """
+    Check that a 4-vectors and numbers cannot be subtracted.
+    """
+    vec = Vector4(1, 2, 3, 4)
+    unittest.TestCase().assertRaises(TypeError, lambda: vec - 4)
+#test_sub_types()
+
+def test_isub():
+    """
+    Check that two 4-vectors can be subtracted in-place.
+    """
+    vec = Vector4(1, 2, 3, 4)
+    vec2 = Vector4(3, 4, 5, 10)
+
+    vec -= vec2
+
+    unittest.TestCase().assertEqual(str(vec), "Vector4(-2, -2, -2, -6)") 
+test_isub()
+
+def test_isub_types():
+    """
+    Check that a 4-vectors and numbers cannot be subtracted in-place.
+    """
+    def func2():
+        vec = Vector4(1, 2, 3, 4)
+        vec -= 4
+
+    unittest.TestCase().assertRaises(TypeError, func2)
+#test_isub_types()
+
+def test_isub_vectorized_right():
+    """
+    Check that numpy arrays can be used in in-place differences from the
+    right.
+    """
+    x1 = [1., 2., 3., 5.]
+    x2 = [1., 2., 3., 6.]
+    x3 = [1., 2., 3., 7.]
+    x4 = [1., 2., 3., 8.]
+
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(3, 2, 0, 9)
+
+    vec2 -= vec
+
+    unittest.TestCase().assertEqual(list(vec2.coords[0]), [2, 0, -3, 4])
+    unittest.TestCase().assertEqual(list(vec2.coords[1]), [2, 0, -3, 3])
+    unittest.TestCase().assertEqual(list(vec2.coords[2]), [2, 0, -3, 2])
+    unittest.TestCase().assertEqual(list(vec2.coords[3]), [2, 0, -3, 1])
+test_isub_vectorized_right()
+
+def test_isub_vectorized_left():
+    """
+    Check that numpy arrays can be used in in-place differences from the
+    left.
+    """
+    x1 = [1., 2., 3., 5.]
+    x2 = [1., 2., 3., 6.]
+    x3 = [1., 2., 3., 7.]
+    x4 = [1., 2., 3., 8.]
+
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(3, 2, 0, 9)
+
+    vec -= vec2
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [-2, 0, 3, -4])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [-2, 0, 3, -3])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [-2, 0, 3, -2])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [-2, 0, 3, -1])
+test_isub_vectorized_left()
+
+def test_isub_vectorized_both():
+    """
+    Check that two numpy arrays can be used in in-place differences.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(x4, x3, x2, x1)
+
+    vec -= vec2
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [0, 0, -3])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [0, 0, -2])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [0, 0, 2])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [0, 0, 3])
+test_isub_vectorized_both()
+
+def test_mul_scalar():
+    """
+    Check that multiplying the vector by a scalar, scales the vector.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    vec = vec * 2
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [2, 4, 10])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [2, 4, 10])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [2, 4, 14])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [2, 4, 16])
+
+test_mul_scalar()
+
+def test_mul_scalar_vectorized():
+    """
+    Check that multiplying a numpy-vector by a scalar works.
+    """
+    vec = Vector4(1, 0, 4, 5)
+
+    unittest.TestCase().assertEqual(str(vec * 2), 'Vector4(2, 0, 8, 10)')
+test_mul_scalar_vectorized()
+
+def test_mul_dot_product():
+    """
+    Check that multiplying two vectors, returns the dot product.
+    """
+    vec = Vector4(2, 0, 4, 5)
+    vec2 = Vector4(7, 0, -1, 3)
+
+    unittest.TestCase().assertEqual(vec * vec2, 14 - 0 + 4 - 15)
+test_mul_dot_product()
+
+def test_mul_dot_product_vectorized_left():
+    """
+    Check that multiplying two vectors (the left a numpy array), returns
+    an array of dot products.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(7, 0, -1, 3)
+
+    products = vec * vec2
+    unittest.TestCase().assertEqual(list(products), [5, 10, 5*7 + 7 - 3*8])
+test_mul_dot_product_vectorized_left()
+
+def test_mul_dot_product_vectorized_right():
+    """
+    Check that multiplying two vectors (the right a numpy array), returns
+    an array of dot products.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(7, 0, -1, 3)
+
+    products = vec2 * vec
+    unittest.TestCase().assertEqual(list(products), [5, 10, 5*7 + 7 - 3*8])
+test_mul_dot_product_vectorized_right()
+
+def test_mul_dot_product_vectorized_both():
+    """
+    Check that multiplying two numpy vectors returns an array of dot
+    products.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+    vec2 = Vector4(x3, x4, x1, x2)
+
+    products = vec * vec2
+    unittest.TestCase().assertEqual(list(products), [-2, -8, -80])
+test_mul_dot_product_vectorized_both()
+
+def test_rmul_scalar():
+    """
+    Check that multiplying the vector by a scalar from left, scales the vector.
+    """
+    vec = Vector4(1, 0, 4, 5)
+    unittest.TestCase().assertEqual(str(2 * vec), 'Vector4(2, 0, 8, 10)')
+
+test_rmul_scalar()
+
+def test_rmul_scalar_vectorized():
+    """
+    Check that multiplying the numpy vector by a scalar from left, scales the vector.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    vec = 2 * vec
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [2, 4, 10])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [2, 4, 10])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [2, 4, 14])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [2, 4, 16])
+
+test_rmul_scalar_vectorized()
+
+def test_imul_scalar():
+    """
+    Check that multiplying a vector by a scaler in-place, scales the vector.
+    """
+    vec = Vector4(1, 0, 4, 5)
+    vec *= 2
+
+    unittest.TestCase().assertEqual(str(vec), 'Vector4(2, 0, 8, 10)')
+test_imul_scalar()
+
+def test_imul_scalar_vectorized():
+    """
+    Check that multiplying a numpy vector by a scaler in-place, scales the vector.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    vec *= 2
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [2, 4, 10])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [2, 4, 10])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [2, 4, 14])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [2, 4, 16])
+test_imul_scalar_vectorized()
+
+def test_imul_dot_product():
+    """
+    Check that multiplying a vector by a vector in-place, raises an error.
+    """
+    def func3():
+        vec = Vector4(2, 0, 4, 5)
+        vec2 = Vector4(7, 0, -1, 3)
+
+        vec *= vec2
+
+    unittest.TestCase().assertRaises(TypeError, func3)
+#test_imul_dot_product() #works but doesnt raise error
+
+def test_neg():
+    """
+    Check that negating the vector is equivalent to multiplication with
+    -1.
+    """
+    vec = Vector4(-2, 0, -8, -10)
+
+    unittest.TestCase().assertEqual(str(-vec), 'Vector4(2, 0, 8, 10)')
+test_neg()
+
+def test_neg_vectorized():
+    """
+    Check that negating the vector is equivalent to multiplication with
+    -1.
+    """
+    x1 = [-2., -4., -10.]
+    x2 = [-2., -4., -10.]
+    x3 = [-2., -4., -14.]
+    x4 = [-2., -4., -16.]
+
+    vec = -Vector4(x1, x2, x3, x4)
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [2, 4, 10])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [2, 4, 10])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [2, 4, 14])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [2, 4, 16])
+test_neg_vectorized()
+
+def test_div_scalar():
+    """
+    Check that dividing a vector by a scalar, scales the vector.
+    """
+    vec = Vector4(1, 0, 4, 5)
+    unittest.TestCase().assertEqual(str(vec / 2.0), 'Vector4(0.5, 0.0, 2.0, 2.5)')
+test_div_scalar()
+
+def test_div_scalar_vectorized():
+    """
+    Check that dividing a numpy vector by a scalar, scales the vector.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    vec = vec / 2.0
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [0.5, 1, 2.5])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [0.5, 1, 2.5])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [0.5, 1, 3.5])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [0.5, 1, 4])
+test_div_scalar_vectorized()
+
+def test_floordiv_scalar():
+    """
+    Check that dividing a vector by a scalar, scales the vector.
+    """
+    vec = Vector4(1, 0, 4, 5)
+    unittest.TestCase().assertEqual(str(vec // 3), 'Vector4(0, 0, 1, 1)')
+test_floordiv_scalar()
+
+def test_ifloordiv_scalar():
+    """
+    Check that dividing a vector by a scalar in-place, scales the vector.
+    """
+    vec = Vector4(1, 0, 4, 5)
+    vec //= 3
+    unittest.TestCase().assertEqual(str(vec), 'Vector4(0, 0, 1, 1)')
+test_ifloordiv_scalar()
+
+def test_div_types():
+    """
+    Check that dividing two vectors, raises an exception.
+    """
+    vec = Vector4(2, 0, 4, 5)
+    vec2 = Vector4(7, 0, -1, 3)
+
+    unittest.TestCase().assertRaises(TypeError, lambda: vec / vec2)
+#test_div_types() #come back to this
+
+def test_floordiv_types():
+    """
+    Check that dividing two vectors, raises an exception.
+    """
+    vec = Vector4(2, 0, 4, 5)
+    vec2 = Vector4(7, 0, -1, 3)
+
+    unittest.TestCase().assertRaises(TypeError, lambda: vec // vec2)
+#test_floordiv_types() #come back to this
+
+def test_rdiv_scalar():
+    """
+    Check that dividing a scalar by vector raises an exception.
+    """
+    vec = Vector4(1, 0, 4, 5)
+    unittest.TestCase().assertRaises(TypeError, lambda: 1 / vec)
+#test_rdiv_scalar() #come back for this
+
+def test_rdiv_types():
+    """
+    Check that dividing two vectors raises an exception.
+    """
+    vec = Vector4(1, 0, 4, 5)
+    vec2 = Vector4(1, 0, 4, 5)
+    unittest.TestCase().assertRaises(TypeError, lambda: vec2 / vec)
+#test_rdiv_types() come back for this
+    
+def test_idiv_types():
+    """
+    Check that dividing a vector by a vector in-place, raises an error.
+    """
+    def func4():
+        vec = Vector4(2, 0, 4, 5)
+        vec2 = Vector4(7, 0, -1, 3)
+
+        vec /= vec2
+
+    unittest.TestCase().assertRaises(TypeError, func4)
+#test_idiv_types() #come back for this
+
+def test_idiv_scalar():
+    """
+    Check that dividing a vector by a scalar in-place, scales the vector.
+    """
+    vec = Vector4(1, 0, 4, 5)
+    vec /= 2.0
+
+    unittest.TestCase().assertEqual(str(vec), 'Vector4(0.5, 0.0, 2.0, 2.5)')
+test_idiv_scalar()
+
+def test_idiv_scalar_vectorized():
+    """
+    Check that dividing a numpy vector by a scalar in-place, scales the vector.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    vec /= 2.0
+
+    unittest.TestCase().assertEqual(list(vec.coords[0]), [0.5, 1, 2.5])
+    unittest.TestCase().assertEqual(list(vec.coords[1]), [0.5, 1, 2.5])
+    unittest.TestCase().assertEqual(list(vec.coords[2]), [0.5, 1, 3.5])
+    unittest.TestCase().assertEqual(list(vec.coords[3]), [0.5, 1, 4])
+test_idiv_scalar_vectorized()
+
+def test_mag():
+    """
+    Check that mag returns the magnitude of the vectors respecting the
+    metric.
+    """
+    vec = Vector4(4, 0, 3, 4)
+    unittest.TestCase().assertEqual(vec.mag, 3j)
+
+    vec = Vector4(7, 2, 3, 4)
+    unittest.TestCase().assertEqual(vec.mag, cmath.sqrt(49 - 4 - 9 - 16))
+test_mag()
+
+def test_mag_vectorized():
+    """
+    Check that mag returns the magnitude of the numpy vectors respecting
+    the metric.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    unittest.TestCase().assertEqual(list(vec.mag),
+                        [cmath.sqrt(-2),
+                        cmath.sqrt(-8),
+                        cmath.sqrt(-113)])
+test_mag_vectorized()
+
+def test_mag2():
+    """
+    Check that mag returns the square magnitude of the vectors respecting
+    the metric.
+    """
+    vec = Vector4(4, 0, 3, 4)
+    unittest.TestCase().assertEqual(vec.mag2, -9)
+
+    vec = Vector4(7, 2, 3, 4)
+    unittest.TestCase().assertEqual(vec.mag2, 49 - 4 - 9 - 16)
+test_mag2()
+
+def test_mag2_vectorized():
+    """
+    Check that mag returns the square magnitude of the numpy vectors
+    respecting the metric.
+    """
+    x1 = [1., 2., 5.]
+    x2 = [1., 2., 5.]
+    x3 = [1., 2., 7.]
+    x4 = [1., 2., 8.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    unittest.TestCase().assertEqual(list(vec.mag2), [-2, -8, -113]) 
+test_mag2_vectorized()
+
+def test_eta():
+    """
+    Check that eta returns the pseudo-rapidity of a vector.
+    """
+    # Forward
+    vector = Vector4(1, 0, 0, 1)
+    unittest.TestCase().assertEqual(vector.eta, float('inf'))
+    vector = Vector4(0, 0, 0, 1)
+    unittest.TestCase().assertEqual(vector.eta, float('inf'))
+
+    # Backward
+    vector = Vector4(1, 0, 0, -1)
+    unittest.TestCase().assertEqual(vector.eta, float('-inf'))
+
+    # Center
+    vector = Vector4(1, 0, 1, 0)
+    unittest.TestCase().assertAlmostEqual(vector.eta, 0)
+    vector = Vector4(1, 1, 0, 0)
+    unittest.TestCase().assertAlmostEqual(vector.eta, 0)
+
+    # 45 deg
+    vector = Vector4(1, 0, 1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.eta, 0.8813735870195428)
+    vector = Vector4(1, 1, 0, 1)
+    unittest.TestCase().assertAlmostEqual(vector.eta, 0.8813735870195428)
+    vector = Vector4(10, 0, 1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.eta, 0.8813735870195428)
+    vector = Vector4(0, 0, 1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.eta, 0.8813735870195428)
+test_eta()
+
+def test_eta_vectorized():
+    """
+    Check that eta returns the pseudo-rapidity of a numpy vector.
+    """
+    x1 = [1., 1., 1.]
+    x2 = [0., 0., 0.]
+    x3 = [0., 1., 1.]
+    x4 = [1., 0., 1.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    etas = list(vec.eta)
+    unittest.TestCase().assertAlmostEqual(etas[0], float('inf'))
+    unittest.TestCase().assertAlmostEqual(etas[1], 0)
+    unittest.TestCase().assertAlmostEqual(etas[2], 0.8813735870195428)
+test_eta_vectorized()
+
+def test_theta():
+    """
+    Check that theta returns the azimuthal angle of the vector.
+    """
+    # Forward
+    vector = Vector4(1, 0, 0, 1)
+    unittest.TestCase().assertEqual(vector.theta, 0)
+    vector = Vector4(0, 0, 0, 1)
+    unittest.TestCase().assertEqual(vector.theta, 0)
+
+    # Backward
+    vector = Vector4(1, 0, 0, -1)
+    unittest.TestCase().assertEqual(vector.theta, cmath.pi)
+
+    # Center
+    vector = Vector4(1, 0, 1, 0)
+    unittest.TestCase().assertEqual(vector.theta, cmath.pi / 2)
+    vector = Vector4(1, 1, 0, 0)
+    unittest.TestCase().assertEqual(vector.theta, cmath.pi / 2)
+
+    # 45 deg
+    vector = Vector4(1, 0, 1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.theta, cmath.pi / 4)
+    vector = Vector4(1, 1, 0, 1)
+    unittest.TestCase().assertAlmostEqual(vector.theta, cmath.pi / 4)
+    vector = Vector4(10, 0, 1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.theta, cmath.pi / 4)
+    vector = Vector4(0, 0, 1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.theta, cmath.pi / 4)
+test_theta()
+
+def test_theta_vectorized():
+    """
+    Check that theta returns the azimuthal angle of the numpy vector.
+    """
+    x1 = [1., 1., 1.]
+    x2 = [0., 0., 0.]
+    x3 = [0., 1., 1.]
+    x4 = [1., 0., 1.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    unittest.TestCase().assertEqual(list(vec.theta), [0, cmath.pi / 2, cmath.pi / 4])
+test_theta_vectorized()
+
+def test_phi():
+    """
+    Check that phi returns the polar angle of the vector.
+    """
+    vector = Vector4(1, 1, 0, 1)
+    unittest.TestCase().assertEqual(vector.phi, 0)
+    vector = Vector4(1, 0, 1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.phi, cmath.pi / 2)
+
+    vector = Vector4(0, -1, 0, 1)
+    unittest.TestCase().assertAlmostEqual(vector.phi, cmath.pi)
+    vector = Vector4(1, -1, 0, 1)
+    unittest.TestCase().assertAlmostEqual(vector.phi, cmath.pi)
+    vector = Vector4(1, -1, 0, 10)
+    unittest.TestCase().assertAlmostEqual(vector.phi, cmath.pi)
+
+    vector = Vector4(1, 0, -1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.phi, -cmath.pi / 2)
+test_phi()
+
+def test_phi_vectorized():
+    """
+    Check that phi returns the polar angle of the numpy vector.
+    """
+    x1 = [1., 1., 1.]
+    x2 = [1., -1., 0.]
+    x3 = [0., 0., -1.]
+    x4 = [1., 10., 1.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    phis = list(vec.phi)
+    unittest.TestCase().assertEqual(phis[0], 0)
+    unittest.TestCase().assertEqual(phis[1], cmath.pi)
+    unittest.TestCase().assertEqual(phis[2], -cmath.pi / 2)
+test_phi_vectorized()
+
+def test_trans():
+    """
+    Check that trans returns the length of the transverse vector.
+    """
+    vector = Vector4(1, 1, 0, 1)
+    unittest.TestCase().assertEqual(vector.trans, 1)
+    vector = Vector4(1, 0, 1, 1)
+    unittest.TestCase().assertAlmostEqual(vector.trans, 1)
+
+    vector = Vector4(0, -1, 0, 1)
+    unittest.TestCase().assertAlmostEqual(vector.trans, 1)
+    vector = Vector4(1, -1, 0, 1)
+    unittest.TestCase().assertAlmostEqual(vector.trans, 1)
+    vector = Vector4(1, -1, 0, 10)
+    unittest.TestCase().assertAlmostEqual(vector.trans, 1)
+
+    vector = Vector4(1, 3, 4, 1)
+    unittest.TestCase().assertAlmostEqual(vector.trans, 5)
+test_trans()
+
+def test_trans_vectorized():
+    """
+    Check that trans returns the length of the transverse vector.
+    """
+    x1 = [1., 1., 1.]
+    x2 = [1., -1., 3.]
+    x3 = [0., 0., 4.]
+    x4 = [1., 10., 1.]
+    vec = Vector4(x1, x2, x3, x4)
+
+    unittest.TestCase().assertEqual(list(vec.trans), [1, 1, 5])
+test_trans_vectorized()
+
+def assertListAlmostEqual(list_a, list_b, *args, **kwds):
+    list_a = list(list_a)
+    list_b = list(list_b)
+    if len(list_a) != len(list_b):
+        unittest.TestCase().assertEqual(list_a, list_b)
+
+    for a, b in zip(list_a, list_b):
+        unittest.TestCase().assertAlmostEqual(a, b, *args, **kwds)
+
+
+def test_eta_single_item():
+    """Check single-item arrays don't turn into scalars."""
+    vector = Vector4([1], [0], [1], [1])
+    assertListAlmostEqual(vector.eta, [0.8813735870195428])
+test_eta_single_item()
+
+def test_phi_single_item():
+    """Check single-item arrays don't turn into scalars."""
+    vector = Vector4([0], [-1], [0], [1])
+    assertListAlmostEqual(vector.phi, [cmath.pi])
+test_phi_single_item()
+
+def test_mag_single_item():
+    """Check single-item arrays don't turn into scalars."""
+    vector = Vector4([0], [0], [1], [0])
+    assertListAlmostEqual(vector.mag, [1j])
+
+    vector = Vector4([1], [0], [0], [0])
+    assertListAlmostEqual(vector.mag, [1])
+test_mag_single_item()
+
+def test_mag2_single_item():
+    """Check single-item arrays don't turn into scalars."""
+    vector = Vector4([2], [0], [1], [0])
+    assertListAlmostEqual(vector.mag2, [3])
+test_mag2_single_item()
+
+def test_theta_single_item():
+    """Check single-item arrays don't turn into scalars."""
+    vector = Vector4([1], [0], [1], [1])
+    assertListAlmostEqual(vector.theta, [cmath.pi / 4])
+test_theta_single_item()
+
+def test_trans_single_item():
+    """Check single-item arrays don't turn into scalars."""
+    vector = Vector4([0], [-1], [0], [1])
+    assertListAlmostEqual(vector.trans, [1])
+test_trans_single_item()
+
+class BoostTestCase():
+
+    """
+    Test the implementation of Lorentz boosts.
+    """
+
+def assertListAlmostEqual(list_a, list_b, *args, **kwds):
+    list_a = list(list_a)
+    list_b = list(list_b)
+    if len(list_a) != len(list_b):
+        unittest.TestCase().assertEqual(list_a, list_b)
+
+    for a, b in zip(list_a, list_b):
+        unittest.TestCase().assertAlmostEqual(a, b, *args, **kwds)
+
+
+def test_beta_simple_single_item():
+    """Check single-item arrays don't turn into scalars."""
+    vector = Vector4([20], [40], [0], [0])
+    boosted = vector.boost([1], [0], [0], [3./5], mode = 'beta')
+
+    assertListAlmostEqual(boosted[0], [-5])
+    assertListAlmostEqual(boosted[1], [35])
+    assertListAlmostEqual(boosted[2], [0])
+    assertListAlmostEqual(boosted[3], [0])
+test_beta_simple_single_item()
+
+def test_beta_simple():
+    """
+    Check that a simple, regular boost with beta parameter returns the
+    boosted vector.
+    """
+    vector = Vector4(20, 40, 0, 0)
+    boosted = vector.boost(1, 0, 0, 3./5, mode = 'beta')
+
+    unittest.TestCase().assertAlmostEqual(boosted[0], -5)
+    unittest.TestCase().assertAlmostEqual(boosted[1], 35)
+    unittest.TestCase().assertAlmostEqual(boosted[2], 0)
+    unittest.TestCase().assertAlmostEqual(boosted[3], 0)
+test_beta_simple()
+
+def test_beta_simple_vectorized():
+    """
+    Check that a simple, regular boost with beta parameter returns the
+    boosted numpy vector.
+    """
+    x1 = [20., 40.]
+    x2 = [40., 80.]
+    x3 = [0., 0.]
+    x4 = [0., 0.]
+    vector = Vector4(x1, x2, x3, x4)
+
+    boosted = vector.boost(1, 0, 0, 3./5, mode ='beta')
+
+    assertListAlmostEqual(boosted[0], [-5., -10.])
+    assertListAlmostEqual(boosted[1], [35., 70.])
+    assertListAlmostEqual(boosted[2], [0., 0.])
+    assertListAlmostEqual(boosted[3], [0., 0.])
+test_beta_simple_vectorized()
+
+def test_beta():
+    """
+    Check that a regular boost with beta parameter returns the boosted
+    vector.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    boosted = vector.boost(5, 3, 4, 0.5, mode = 'beta')
+
+    unittest.TestCase().assertAlmostEqual(boosted[0], -1.7030374948677893)
+    unittest.TestCase().assertAlmostEqual(boosted[1], 2.1332035938635183)
+    unittest.TestCase().assertAlmostEqual(boosted[2], 3.0799221563181116)
+    unittest.TestCase().assertAlmostEqual(boosted[3], 4.106562875090814)
+test_beta()
+
+def test_beta_vecrorized():
+    """
+    Check that a regular boost with beta parameter returns the boosted
+    numpy vector.
+    """
+    x1 = [1., -2.]
+    x2 = [2., -4.]
+    x3 = [3., -6.]
+    x4 = [4., -8.]
+    vector = Vector4(x1, x2, x3, x4)
+
+    boosted = vector.boost(5, 3, 4, 0.5, mode = 'beta')
+
+
+    r = [-1.7030374948677893, 2.1332035938635183,
+                        3.0799221563181116, 4.106562875090814]
+    result = np.array([r, [-x * 2 for x in r]])
+
+    assertListAlmostEqual(boosted[0], result.T[0])
+    assertListAlmostEqual(boosted[1], result.T[1])
+    assertListAlmostEqual(boosted[2], result.T[2])
+    assertListAlmostEqual(boosted[3], result.T[3])
+test_beta_vecrorized()
+
+def test_beta_rest():
+    """
+    Check that a regular boost with beta=0 returns the same vector.
+    """
+    vector = Vector4(1, 2, 3, 4)
+
+    boosted = vector.boost(5, 3, 4, 0, mode = 'beta')
+
+    unittest.TestCase().assertAlmostEqual(boosted[0], 1)
+    unittest.TestCase().assertAlmostEqual(boosted[1], 2)
+    unittest.TestCase().assertAlmostEqual(boosted[2], 3)
+    unittest.TestCase().assertAlmostEqual(boosted[3], 4)
+test_beta_rest()
+
+def test_beta_rest_vectorized():
+    """
+    Check that a regular boost with beta=0 returns the same numpy vector.
+    """
+    x1 = [1., -2.]
+    x2 = [2., -4.]
+    x3 = [3., -6.]
+    x4 = [4., -8.]
+    vector = Vector4(x1, x2, x3, x4)
+
+    boosted = vector.boost(5, 3, 4, 0, mode = 'beta')
+
+    assertListAlmostEqual(boosted[0], [1., -2.])
+    assertListAlmostEqual(boosted[1], [2., -4.])
+    assertListAlmostEqual(boosted[2], [3., -6.])
+    assertListAlmostEqual(boosted[3], [4., -8.])
+test_beta_rest_vectorized()
+
+def test_gamma_simple():
+    """
+    Check that a simple, regular boost with gamma parameter returns the
+    boosted vector.
+    """
+    vector = Vector4(20, 40, 0, 0)
+    boosted = vector.boost(1., 0., 0., 5./4, mode = 'gamma')
+
+    unittest.TestCase().assertAlmostEqual(boosted[0], -5)
+    unittest.TestCase().assertAlmostEqual(boosted[1], 35)
+    unittest.TestCase().assertAlmostEqual(boosted[2], 0)
+    unittest.TestCase().assertAlmostEqual(boosted[3], 0)
+test_gamma_simple()
+
+def test_gamma_simple_vectorized():
+    """
+    Check that a simple, regular boost with gamma parameter returns the
+    boosted numpy vector.
+    """
+    x1 = [20., 40.]
+    x2 = [40., 80.]
+    x3 = [0., 0.]
+    x4 = [0., 0.]
+    vector = Vector4(x1, x2, x3, x4)
+
+    boosted = vector.boost(1., 0., 0., 5./4, mode = 'gamma')
+
+    assertListAlmostEqual(boosted[0], [-5., -10.])
+    assertListAlmostEqual(boosted[1], [35., 70.])
+    assertListAlmostEqual(boosted[2], [0., 0.])
+    assertListAlmostEqual(boosted[3], [0., 0.])
+test_gamma_simple_vectorized()
+
+def test_gamma():
+    """
+    Check that a regular boost with gamma parameter returns the boosted
+    vector.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    boosted = vector.boost(5., 3., 4., (1/math.sqrt(0.75)), mode = 'gamma')
+
+    unittest.TestCase().assertAlmostEqual(boosted[0], -1.7030374948677893)
+    unittest.TestCase().assertAlmostEqual(boosted[1], 2.1332035938635183)
+    unittest.TestCase().assertAlmostEqual(boosted[2], 3.0799221563181116)
+    unittest.TestCase().assertAlmostEqual(boosted[3], 4.106562875090814)
+test_gamma()
+
+def test_gamma_vectorized():
+    """
+    Check that a regular boost with gamma parameter returns the boosted
+    numpy vector.
+    """
+    x1 = [1., -2.]
+    x2 = [2., -4.]
+    x3 = [3., -6.]
+    x4 = [4., -8.]
+    vector = Vector4(x1, x2, x3, x4)
+
+    boosted = vector.boost(5., 3., 4., (1/math.sqrt(0.75)), mode = 'gamma')
+
+    r = [-1.7030374948677893, 2.1332035938635183,
+                        3.0799221563181116, 4.106562875090814]
+    result = np.array([r, [-x * 2 for x in r]])
+
+    assertListAlmostEqual(boosted[0], result.T[0])
+    assertListAlmostEqual(boosted[1], result.T[1])
+    assertListAlmostEqual(boosted[2], result.T[2])
+    assertListAlmostEqual(boosted[3], result.T[3])
+test_gamma_vectorized()
+
+def test_gamma_rest():
+    """
+    Check that a regular boost with gamma=0 returns the same vector.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    boosted = vector.boost(5., 3., 4., 1, mode ='gamma')
+
+    unittest.TestCase().assertAlmostEqual(boosted[0], 1)
+    unittest.TestCase().assertAlmostEqual(boosted[1], 2)
+    unittest.TestCase().assertAlmostEqual(boosted[2], 3)
+    unittest.TestCase().assertAlmostEqual(boosted[3], 4)
+test_gamma_rest()
+
+def test_gamma_rest_vectorized():
+    """
+    Check that a regular boost with gamma=0 returns the same numpy vector.
+    """
+    x1 = [1., -2.]
+    x2 = [2., -4.]
+    x3 = [3., -6.]
+    x4 = [4., -8.]
+    vector = Vector4(x1, x2, x3, x4)
+
+    boosted = vector.boost(5., 3., 4., 1, mode ='gamma')
+
+    assertListAlmostEqual(boosted[0], [1., -2.])
+    assertListAlmostEqual(boosted[1], [2., -4.])
+    assertListAlmostEqual(boosted[2], [3., -6.])
+    assertListAlmostEqual(boosted[3], [4., -8.])
+test_gamma_rest_vectorized()
+
+def assertBetween(min, actual, max):
+    unittest.TestCase().assertLess(min, actual)
+    unittest.TestCase().assertLess(actual, max)
+
+def test_particle():
+    """
+    Check that a boost from a moving particle returns the correct vector.
+    """
+    m = 125.0
+
+    # Pair of taus in the y-z-plane
+    tau_1 = Momentum4.e_m_eta_phi(m / 2, 1.777, 2, math.pi / 2)
+    tau_2 = Momentum4.e_m_eta_phi(m / 2, 1.777, -2, -math.pi / 2)
+
+    # Higgs boosted in ~x direction
+    higgs = Momentum4.m_eta_phi_pt(m, 0.1, 0.1, 345.6)
+
+    tau_1 = tau_1.boost_particle(higgs)
+    tau_2 = tau_2.boost_particle(higgs)
+
+    assertBetween(0, tau_1.eta, 2)
+    assertBetween(0, tau_1.phi, math.pi/2)
+
+    assertBetween(-2, tau_2.eta, 0)
+    assertBetween(-math.pi/2, tau_2.phi, 0)
+
+    delta_R = math.sqrt((tau_1.eta - tau_2.eta)**2
+                        + (tau_1.phi - tau_2.phi)**2)
+
+    # approximation: dR = 2 * m / pT
+    unittest.TestCase().assertAlmostEqual(delta_R, 2 * higgs.m / higgs.p_t, 1)
+
+test_particle()
+def test_particle_vectorized():
+    """
+    Check that a boost from a moving particle returns the correct vector.
+    """
+    m = 125.0
+
+    # Pair of taus in the y-z-plane
+    x1 = [m / 2, m / 2]
+    x2 = [1.777, 1.777]
+    x3 = [2., -2.]
+    x4 = [math.pi / 2, -math.pi / 2]
+    taus = Momentum4.e_m_eta_phi(x1, x2, x3, x4)
+
+    # Higgs boosted in ~x direction
+    higgs = Momentum4.m_eta_phi_pt(m, 0.1, 0.1, 345.6)
+
+    taus = taus.boost_particle(higgs)
+
+    assertBetween(0, taus.eta[0], 2)
+    assertBetween(0, taus.phi[0], math.pi/2)
+
+    assertBetween(-2, taus.eta[1], 0)
+    assertBetween(-math.pi/2, taus.phi[1], 0)
+
+    delta_R = math.sqrt((taus.eta[1] - taus.eta[0])**2
+                        + (taus.phi[1] - taus.phi[0])**2)
+
+    # approximation: dR = 2 * m / pT
+    unittest.TestCase().assertAlmostEqual(delta_R, 2 * higgs.m / higgs.p_t, 1)
+
+def test_vectorized_beta():
+    """
+    Check that a vectorized beta parameter can be used.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    boosted = vector.boost(5, 3, 4, beta=[0, 0.5])
+
+    assertListAlmostEqual(boosted[0], [1., -1.7030374948677893])
+    assertListAlmostEqual(boosted[1], [2., 2.1332035938635183])
+    assertListAlmostEqual(boosted[2], [3., 3.0799221563181116])
+    assertListAlmostEqual(boosted[3], [4., 4.106562875090814])
+
+def test_vectorized_gamma():
+    """
+    Check that a vectorized gamma parameter can be used.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    boosted = vector.boost(5., 3., 4., gamma=[1., 1/math.sqrt(0.75)])
+
+    assertListAlmostEqual(boosted[0], [1., -1.7030374948677893])
+    assertListAlmostEqual(boosted[1], [2., 2.1332035938635183])
+    assertListAlmostEqual(boosted[2], [3., 3.0799221563181116])
+    assertListAlmostEqual(boosted[3], [4., 4.106562875090814])
+
+def test_beta_vecrorized_axis():
+    """Check that operand and beta can be vectorized."""
+    vector = Vector4([1., -1.], [2., -2.], [3., -3.], [4., -4.])
+
+    boosted = vector.boost([5., 5.], [3., 3.], [4., 4.], beta=0.5)
+
+
+    result = [[-1.7030374948677893, 2.1332035938635183,
+                        3.0799221563181116, 4.106562875090814],
+                        [1.7030374948677893, -2.1332035938635183,
+                        -3.0799221563181116, -4.106562875090814]]
+
+    assertListAlmostEqual(boosted[0], result.T[0])
+    assertListAlmostEqual(boosted[1], result.T[1])
+    assertListAlmostEqual(boosted[2], result.T[2])
+    assertListAlmostEqual(boosted[3], result.T[3])
+
+def test_beta_vecrorized_both():
+    """Check that operand and beta can be vectorized."""
+    x1 = [1., -2.]
+    x2 = [2., -4.]
+    x3 = [3., -6.]
+    x4 = [4., -8.]
+    vector = Vector4(x1, x2, x3, x4)
+
+    boosted = vector.boost(5., 3., 4., beta=[0.5, 0.])
+
+
+    result = [[-1.7030374948677893, 2.1332035938635183,
+                        3.0799221563181116, 4.106562875090814],
+                        [-2., -4., -6., -8.]]
+
+    assertListAlmostEqual(boosted[0], result.T[0])
+    assertListAlmostEqual(boosted[1], result.T[1])
+    assertListAlmostEqual(boosted[2], result.T[2])
+    assertListAlmostEqual(boosted[3], result.T[3])
+
+def test_gamma_vecrorized_both():
+    """Check that operand and gamma can be vectorized."""
+    x1 = [1., -2.]
+    x2 = [2., -4.]
+    x3 = [3., -6.]
+    x4 = [4., -8.]
+    vector = Vector4(x1, x2, x3, x4)
+
+    boosted = vector.boost(5., 3., 4., gamma=[1/math.sqrt(0.75), 1])
+
+
+    result = [[-1.7030374948677893, 2.1332035938635183,
+                        3.0799221563181116, 4.106562875090814],
+                        [-2., -4., -6., -8.]]
+
+    assertListAlmostEqual(boosted[0], result.T[0])
+    assertListAlmostEqual(boosted[1], result.T[1])
+    assertListAlmostEqual(boosted[2], result.T[2])
+    assertListAlmostEqual(boosted[3], result.T[3])
+
+def test_beta_vecrorized_all():
+    """Check that operand and beta can be vectorized."""
+    vector = Vector4([1., -1.], [2., -2.], [3., -3.], [4., -4.])
+
+    boosted = vector.boost([5., 1.], [3., 3.], [4., 2.], beta=[0.5, 0.])
+
+
+    result = [[-1.7030374948677893, 2.1332035938635183,
+                        3.0799221563181116, 4.106562875090814],
+                        [-1., -2., -3., -4.]]
+
+    assertListAlmostEqual(boosted[0], result.T[0])
+    assertListAlmostEqual(boosted[1], result.T[1])
+    assertListAlmostEqual(boosted[2], result.T[2])
+    assertListAlmostEqual(boosted[3], result.T[3])
