@@ -5,7 +5,7 @@ from python import unittest
 from python import numpy as np
 from python import cmath
 from python import math
-from __init__ import Vector4, Momentum4
+from __init__ import Vector4
 
 """
 Test the implementation of Vector4.
@@ -1130,11 +1130,11 @@ def test_particle():
     m = 125.0
 
     # Pair of taus in the y-z-plane
-    tau_1 = Momentum4.e_m_eta_phi(m / 2, 1.777, 2, math.pi / 2)
-    tau_2 = Momentum4.e_m_eta_phi(m / 2, 1.777, -2, -math.pi / 2)
+    tau_1 = Vector4.e_m_eta_phi(m / 2, 1.777, 2, math.pi / 2)
+    tau_2 = Vector4.e_m_eta_phi(m / 2, 1.777, -2, -math.pi / 2)
 
     # Higgs boosted in ~x direction
-    higgs = Momentum4.m_eta_phi_pt(m, 0.1, 0.1, 345.6)
+    higgs = Vector4.m_eta_phi_pt(m, 0.1, 0.1, 345.6)
 
     tau_1 = tau_1.boost_particle(higgs)
     tau_2 = tau_2.boost_particle(higgs)
@@ -1163,10 +1163,10 @@ def test_particle_vectorized():
     x2 = [1.777, 1.777]
     x3 = [2., -2.]
     x4 = [math.pi / 2, -math.pi / 2]
-    taus = Momentum4.e_m_eta_phi(x1, x2, x3, x4)
+    taus = Vector4.e_m_eta_phi(x1, x2, x3, x4)
 
     # Higgs boosted in ~x direction
-    higgs = Momentum4.m_eta_phi_pt(m, 0.1, 0.1, 345.6)
+    higgs = Vector4.m_eta_phi_pt(m, 0.1, 0.1, 345.6)
 
     taus = taus.boost_particle(higgs)
 
@@ -1181,47 +1181,51 @@ def test_particle_vectorized():
 
     # approximation: dR = 2 * m / pT
     unittest.TestCase().assertAlmostEqual(delta_R, 2 * higgs.m / higgs.p_t, 1)
+test_particle_vectorized()
 
 def test_vectorized_beta():
     """
     Check that a vectorized beta parameter can be used.
     """
     vector = Vector4(1, 2, 3, 4)
-    boosted = vector.boost(5, 3, 4, beta=[0, 0.5])
+    boosted = vector.boost(5, 3, 4, [0, 0.5], mode='beta')
 
     assertListAlmostEqual(boosted[0], [1., -1.7030374948677893])
     assertListAlmostEqual(boosted[1], [2., 2.1332035938635183])
     assertListAlmostEqual(boosted[2], [3., 3.0799221563181116])
     assertListAlmostEqual(boosted[3], [4., 4.106562875090814])
+test_vectorized_beta()
 
 def test_vectorized_gamma():
     """
     Check that a vectorized gamma parameter can be used.
     """
     vector = Vector4(1, 2, 3, 4)
-    boosted = vector.boost(5., 3., 4., gamma=[1., 1/math.sqrt(0.75)])
+    boosted = vector.boost(5., 3., 4.,[1., 1/math.sqrt(0.75)], mode='gamma')
 
     assertListAlmostEqual(boosted[0], [1., -1.7030374948677893])
     assertListAlmostEqual(boosted[1], [2., 2.1332035938635183])
     assertListAlmostEqual(boosted[2], [3., 3.0799221563181116])
     assertListAlmostEqual(boosted[3], [4., 4.106562875090814])
+test_vectorized_gamma()
 
 def test_beta_vecrorized_axis():
     """Check that operand and beta can be vectorized."""
     vector = Vector4([1., -1.], [2., -2.], [3., -3.], [4., -4.])
 
-    boosted = vector.boost([5., 5.], [3., 3.], [4., 4.], beta=0.5)
+    boosted = vector.boost([5., 5.], [3., 3.], [4., 4.], 0.5, mode = 'beta')
 
 
-    result = [[-1.7030374948677893, 2.1332035938635183,
+    result = np.array([[-1.7030374948677893, 2.1332035938635183,
                         3.0799221563181116, 4.106562875090814],
                         [1.7030374948677893, -2.1332035938635183,
-                        -3.0799221563181116, -4.106562875090814]]
+                        -3.0799221563181116, -4.106562875090814]])
 
     assertListAlmostEqual(boosted[0], result.T[0])
     assertListAlmostEqual(boosted[1], result.T[1])
     assertListAlmostEqual(boosted[2], result.T[2])
     assertListAlmostEqual(boosted[3], result.T[3])
+test_beta_vecrorized_axis()
 
 def test_beta_vecrorized_both():
     """Check that operand and beta can be vectorized."""
@@ -1231,17 +1235,18 @@ def test_beta_vecrorized_both():
     x4 = [4., -8.]
     vector = Vector4(x1, x2, x3, x4)
 
-    boosted = vector.boost(5., 3., 4., beta=[0.5, 0.])
+    boosted = vector.boost(5., 3., 4., [0.5, 0.], mode ='beta')
 
 
-    result = [[-1.7030374948677893, 2.1332035938635183,
+    result = np.array([[-1.7030374948677893, 2.1332035938635183,
                         3.0799221563181116, 4.106562875090814],
-                        [-2., -4., -6., -8.]]
+                        [-2., -4., -6., -8.]])
 
     assertListAlmostEqual(boosted[0], result.T[0])
     assertListAlmostEqual(boosted[1], result.T[1])
     assertListAlmostEqual(boosted[2], result.T[2])
     assertListAlmostEqual(boosted[3], result.T[3])
+test_beta_vecrorized_both()
 
 def test_gamma_vecrorized_both():
     """Check that operand and gamma can be vectorized."""
@@ -1251,30 +1256,228 @@ def test_gamma_vecrorized_both():
     x4 = [4., -8.]
     vector = Vector4(x1, x2, x3, x4)
 
-    boosted = vector.boost(5., 3., 4., gamma=[1/math.sqrt(0.75), 1])
+    boosted = vector.boost(5., 3., 4., [1/math.sqrt(0.75), 1], mode = 'gamma')
 
 
-    result = [[-1.7030374948677893, 2.1332035938635183,
+    result = np.array([[-1.7030374948677893, 2.1332035938635183,
                         3.0799221563181116, 4.106562875090814],
-                        [-2., -4., -6., -8.]]
+                        [-2., -4., -6., -8.]])
 
     assertListAlmostEqual(boosted[0], result.T[0])
     assertListAlmostEqual(boosted[1], result.T[1])
     assertListAlmostEqual(boosted[2], result.T[2])
     assertListAlmostEqual(boosted[3], result.T[3])
+test_gamma_vecrorized_both()
 
 def test_beta_vecrorized_all():
     """Check that operand and beta can be vectorized."""
     vector = Vector4([1., -1.], [2., -2.], [3., -3.], [4., -4.])
 
-    boosted = vector.boost([5., 1.], [3., 3.], [4., 2.], beta=[0.5, 0.])
+    boosted = vector.boost([5., 1.], [3., 3.], [4., 2.], [0.5, 0.], mode='beta')
 
 
-    result = [[-1.7030374948677893, 2.1332035938635183,
+    result = np.array([[-1.7030374948677893, 2.1332035938635183,
                         3.0799221563181116, 4.106562875090814],
-                        [-1., -2., -3., -4.]]
+                        [-1., -2., -3., -4.]])
 
     assertListAlmostEqual(boosted[0], result.T[0])
     assertListAlmostEqual(boosted[1], result.T[1])
     assertListAlmostEqual(boosted[2], result.T[2])
     assertListAlmostEqual(boosted[3], result.T[3])
+test_beta_vecrorized_all()
+
+def test_X_rotation():
+    """
+    Check that the 4-vector is rotated properly in the x-direction.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    rotated = vector.rotate_X(np.pi/2)
+
+    unittest.TestCase().assertAlmostEqual(rotated[0],1)
+    unittest.TestCase().assertAlmostEqual(rotated[1],-3)
+    unittest.TestCase().assertAlmostEqual(rotated[2],2)
+    unittest.TestCase().assertAlmostEqual(rotated[3],4)
+test_X_rotation()
+
+
+def test_Y_rotation():
+    """
+    Check that the 4-vector is rotated properly in the x-direction.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    rotated = vector.rotate_Y(np.pi/2)
+
+    unittest.TestCase().assertAlmostEqual(rotated[0],3)
+    unittest.TestCase().assertAlmostEqual(rotated[1],2)
+    unittest.TestCase().assertAlmostEqual(rotated[2],-1)
+    unittest.TestCase().assertAlmostEqual(rotated[3],4)
+test_Y_rotation()
+
+def test_Z_rotation():
+    """
+    Check that the 4-vector is rotated properly in the x-direction.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    rotated = vector.rotate_Z(np.pi/2)
+
+    unittest.TestCase().assertAlmostEqual(rotated[0],-2)
+    unittest.TestCase().assertAlmostEqual(rotated[1],1)
+    unittest.TestCase().assertAlmostEqual(rotated[2],3)
+    unittest.TestCase().assertAlmostEqual(rotated[3],4)
+test_Z_rotation()
+
+def test_rotate_X_single_item():
+    """Check single-item arrays don't turn into scalars."""
+
+    vector = Vector4([1], [2], [3], [4])
+    rotated = vector.rotate_X(np.pi/2)
+
+    assertListAlmostEqual(rotated[0], [1])
+    assertListAlmostEqual(rotated[1], [-3])
+    assertListAlmostEqual(rotated[2], [2])
+    assertListAlmostEqual(rotated[3], [4])
+test_rotate_X_single_item()
+
+def test_rotate_Y_single_item():
+    """Check single-item arrays don't turn into scalars."""
+
+    vector = Vector4([1], [2], [3], [4])
+    rotated = vector.rotate_Y(np.pi/2)
+
+    assertListAlmostEqual(rotated[0], [3])
+    assertListAlmostEqual(rotated[1], [2])
+    assertListAlmostEqual(rotated[2], [-1])
+    assertListAlmostEqual(rotated[3], [4])
+test_rotate_Y_single_item()
+
+def test_rotate_Z_single_item():
+    """Check single-item arrays don't turn into scalars."""
+
+    vector = Vector4([1], [2], [3], [4])
+    rotated = vector.rotate_Z(np.pi/2)
+
+    assertListAlmostEqual(rotated[0], [-2])
+    assertListAlmostEqual(rotated[1], [1])
+    assertListAlmostEqual(rotated[2], [3])
+    assertListAlmostEqual(rotated[3], [4])
+test_rotate_Z_single_item()
+
+def test_rotate_X_simple_vectorized():
+    """
+    Check that a simple, regular rotation about the X axis returns the transformed
+    numpy vector.
+    """
+    x1 = np.array([1, 2])
+    x2 = np.array([2, 4])
+    x3 = np.array([3, 6])
+    x4 = np.array([4, 8])
+    vector = Vector4(x1, x2, x3, x4)
+
+    rotated = vector.rotate_X(np.pi/2)
+
+    assertListAlmostEqual(rotated[0], [1, 2])
+    assertListAlmostEqual(rotated[1], [-3, -6])
+    assertListAlmostEqual(rotated[2], [2, 4])
+    assertListAlmostEqual(rotated[3], [4, 8])
+test_rotate_X_simple_vectorized()
+
+def test_rotate_Y_simple_vectorized():
+    """
+    Check that a simple, regular rotation about the Y axis returns the transformed
+    numpy vector.
+    """
+    x1 = np.array([1, 2])
+    x2 = np.array([2, 4])
+    x3 = np.array([3, 6])
+    x4 = np.array([4, 8])
+    vector = Vector4(x1, x2, x3, x4)
+
+    rotated = vector.rotate_Y(np.pi/2)
+
+    assertListAlmostEqual(rotated[0], [3, 6])
+    assertListAlmostEqual(rotated[1], [2, 4])
+    assertListAlmostEqual(rotated[2], [-1, -2])
+    assertListAlmostEqual(rotated[3], [4, 8])
+test_rotate_Y_simple_vectorized()
+
+def test_rotate_Z_simple_vectorized():
+    """
+    Check that a simple, regular rotation about the Z axis returns the transformed
+    numpy vector.
+    """
+    x1 = np.array([1, 2])
+    x2 = np.array([2, 4])
+    x3 = np.array([3, 6])
+    x4 = np.array([4, 8])
+    vector = Vector4(x1, x2, x3, x4)
+
+    rotated = vector.rotate_Z(np.pi/2)
+
+    assertListAlmostEqual(rotated[0], [-2, -4])
+    assertListAlmostEqual(rotated[1], [1, 2])
+    assertListAlmostEqual(rotated[2], [3, 6])
+    assertListAlmostEqual(rotated[3], [4, 8])
+test_rotate_Z_simple_vectorized()
+
+def test_X_rotation_degree():
+    """
+    Check that the 4-vector is rotated properly in the x-direction using degrees.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    rotated = vector.rotate_X(90, rad=0)
+    #print(rotated)
+
+    unittest.TestCase().assertAlmostEqual(rotated[0],1)
+    unittest.TestCase().assertAlmostEqual(rotated[1],-3)
+    unittest.TestCase().assertAlmostEqual(rotated[2],2)
+    unittest.TestCase().assertAlmostEqual(rotated[3],4)
+test_X_rotation_degree()
+
+
+def test_Y_rotation_degree():
+    """
+    Check that the 4-vector is rotated properly in the y-direction using degrees.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    rotated = vector.rotate_Y(90, rad=0)
+    #print(rotated)
+
+    unittest.TestCase().assertAlmostEqual(rotated[0],3)
+    unittest.TestCase().assertAlmostEqual(rotated[1],2)
+    unittest.TestCase().assertAlmostEqual(rotated[2],-1)
+    unittest.TestCase().assertAlmostEqual(rotated[3],4)
+test_Y_rotation_degree()
+
+def test_Z_rotation_degree():
+    """
+    Check that the 4-vector is rotated properly in the z-direction using degrees.
+    """
+    vector = Vector4(1, 2, 3, 4)
+    rotated = vector.rotate_Z(90, rad=0)
+    #print(rotated)
+
+    unittest.TestCase().assertAlmostEqual(rotated[0],-2)
+    unittest.TestCase().assertAlmostEqual(rotated[1],1)
+    unittest.TestCase().assertAlmostEqual(rotated[2],3)
+    unittest.TestCase().assertAlmostEqual(rotated[3],4)
+test_Z_rotation_degree()
+
+def test_Inverse():
+    """
+    Check that the inverse function properly inverses a rotation matrix and delivers
+    the correct result.
+    """
+    vector = Vector4(-2, 1, 3, 4)
+    matrix = np.array([
+    [0.0,-1.0, 0.0, 0.0],
+    [1.0, 0.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0, 0.0],
+    [0.0, 0.0, 0.0, 1.0]])
+
+    rotated = vector.inverse(matrix)
+
+    unittest.TestCase().assertAlmostEqual(rotated[0],1)
+    unittest.TestCase().assertAlmostEqual(rotated[1],2)
+    unittest.TestCase().assertAlmostEqual(rotated[2],3)
+    unittest.TestCase().assertAlmostEqual(rotated[3],4)
+test_Inverse()

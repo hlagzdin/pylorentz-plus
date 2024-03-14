@@ -1,0 +1,221 @@
+""" Unittests for the class Vector4
+"""
+
+from python import unittest
+from python import numpy as np
+from __init__ import Vector4
+
+
+
+"""
+Test the implementation of Momentum4.
+"""
+
+def assertListAlmostEqual(list_a, list_b, *args, **kwds):
+    list_a = list(list_a)
+    list_b = list(list_b)
+    if len(list_a) != len(list_b):
+        unittest.TestCase().assertEqual(list_a, list_b)
+
+    for a, b in zip(list_a, list_b):
+        unittest.TestCase().assertAlmostEqual(a, b, *args, **kwds)
+
+
+def test_init():
+    """
+    Check that a instantiation with all four components returns the
+    correct vector.
+    """
+    momentum = Vector4(100, 2.5, 1.23, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.e, 100)
+    unittest.TestCase().assertAlmostEqual(momentum.p_x, 2.5)
+    unittest.TestCase().assertAlmostEqual(momentum.p_y, 1.23)
+    unittest.TestCase().assertAlmostEqual(momentum.p_z, 1.777)
+test_init()
+
+def test_init_vectorized():
+    """
+    Check that a instantiation with all four components returns the
+    correct numpy vector.
+    """
+    x1 = np.array([100, 200, 300, 400])
+    x2 = np.array([1.5, 2.5, 3.5, 4.5])
+    x3 = np.array([1.23]*4)
+    x4 = np.array([1.777]*4)
+    momentum = Vector4(x1, x2, x3, x4)
+
+    assertListAlmostEqual(momentum.e, [100, 200, 300, 400])
+    assertListAlmostEqual(momentum.p_x, [1.5, 2.5, 3.5, 4.5])
+    assertListAlmostEqual(momentum.p_y, [1.23]*4)
+    assertListAlmostEqual(momentum.p_z, [1.777]*4)
+test_init_vectorized()
+
+def test_e_eta_phi_pt_vectorized():
+    """
+    Check that instantiation with e_eta_phi_pt() returns the correct
+    object.
+    """
+    x1 = np.array([100, 200, 300, 400])
+    x2 = np.array([1.5, 2.5, 3.5, 4.5])
+    x3 = np.array([1.23]*4)
+    x4 = np.array([1.777]*4)
+    momentum = Vector4.e_eta_phi_pt(x1, x2, x3, x4)
+
+    assertListAlmostEqual(momentum.e, [100, 200, 300, 400])
+    assertListAlmostEqual(momentum.eta, [1.5, 2.5, 3.5, 4.5])
+    assertListAlmostEqual(momentum.phi, [1.23]*4)
+    assertListAlmostEqual(momentum.p_t, [1.777]*4)
+
+    assertListAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_e_eta_phi_pt_vectorized()
+
+def test_e_eta_phi_pt():
+    """
+    Check that instantiation with e_eta_phi_pt() returns the correct
+    object.
+    """
+    momentum = Vector4.e_eta_phi_pt(100, 2.5, 1.23, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.e, 100)
+    unittest.TestCase().assertAlmostEqual(momentum.eta, 2.5)
+    unittest.TestCase().assertAlmostEqual(momentum.phi, 1.23)
+    unittest.TestCase().assertAlmostEqual(momentum.p_t, 1.777)
+
+    unittest.TestCase().assertAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_e_eta_phi_pt()
+
+def test_m_eta_phi_pt():
+    """
+    Check that instantiation with m_eta_phi_pt() returns the correct
+    object.
+    """
+    momentum = Vector4.m_eta_phi_pt(0.105, 2.5, 1.23, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.m, 0.105)
+    unittest.TestCase().assertAlmostEqual(momentum.eta, 2.5)
+    unittest.TestCase().assertAlmostEqual(momentum.phi, 1.23)
+    unittest.TestCase().assertAlmostEqual(momentum.p_t, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_m_eta_phi_pt()
+
+def test_m_eta_phi_pt_vectorized():
+    """
+    Check that instantiation with m_eta_phi_pt() returns the correct
+    object.
+    """
+    x1 = np.array([0.105, 1.105, 2.105, 3.105])
+    x2 = np.array([1.5, 2.5, 3.5, 4.5])
+    x3 = np.array([1.23]*4)
+    x4 = np.array([1.777]*4)
+    momentum = Vector4.m_eta_phi_pt(x1, x2, x3, x4)
+
+    assertListAlmostEqual(momentum.m, np.arange(4) + 0.105)
+    assertListAlmostEqual(momentum.eta, np.arange(4) + 1.5)
+    assertListAlmostEqual(momentum.phi, [1.23]*4)
+    assertListAlmostEqual(momentum.p_t, [1.777]*4)
+    assertListAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_m_eta_phi_pt_vectorized()
+
+def test_m_eta_phi_p():
+    """
+    Check that instantiation with m_eta_phi_p() returns the correct
+    object.
+    """
+    momentum = Vector4.m_eta_phi_p(0.105, 2.5, 1.23, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.m, 0.105)
+    unittest.TestCase().assertAlmostEqual(momentum.eta, 2.5)
+    unittest.TestCase().assertAlmostEqual(momentum.phi, 1.23)
+    unittest.TestCase().assertAlmostEqual(momentum.p, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_m_eta_phi_p()
+
+def test_m_eta_phi_p_vectorized():
+    """
+    Check that instantiation with m_eta_phi_p() returns the correct
+    object.
+    """
+    x1 = np.array([0.105, 1.105, 2.105, 3.105])
+    x2 = np.array([1.5, 2.5, 3.5, 4.5])
+    x3 = np.array([1.23]*4)
+    x4 = np.array([1.777]*4)
+    momentum = Vector4.m_eta_phi_p(x1, x2, x3, x4)
+
+    assertListAlmostEqual(momentum.m, np.arange(4) + 0.105)
+    assertListAlmostEqual(momentum.eta, np.arange(4) + 1.5)
+    assertListAlmostEqual(momentum.phi, [1.23]*4)
+    assertListAlmostEqual(momentum.p, [1.777]*4)
+    assertListAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_m_eta_phi_p_vectorized()
+
+def test_e_eta_phi_p():
+    """
+    Check that instantiation with e_eta_phi_p() returns the correct
+    object.
+    """
+    momentum = Vector4.e_eta_phi_p(2, 2.5, 1.23, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.e, 2)
+    unittest.TestCase().assertAlmostEqual(momentum.eta, 2.5)
+    unittest.TestCase().assertAlmostEqual(momentum.phi, 1.23)
+    unittest.TestCase().assertAlmostEqual(momentum.p, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_e_eta_phi_p()
+
+def test_e_eta_phi_p_vectorized():
+    """
+    Check that instantiation with m_eta_phi_p() returns the correct
+    object.
+    """
+    x1 = np.array([0.105, 1.105, 2.105, 3.105])
+    x2 = np.array([1.5, 2.5, 3.5, 4.5])
+    x3 = np.array([1.23]*4)
+    x4 = np.array([1.777]*4)
+    momentum = Vector4.m_eta_phi_p(x1, x2, x3, x4)
+
+    assertListAlmostEqual(momentum.m, np.arange(4) + 0.105)
+    assertListAlmostEqual(momentum.eta, np.arange(4) + 1.5)
+    assertListAlmostEqual(momentum.phi, [1.23]*4)
+    assertListAlmostEqual(momentum.p, [1.777]*4)
+    assertListAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_e_eta_phi_p_vectorized()
+
+def test_e_m_eta_phi():
+    """
+    Check that instantiation with e_m_eta_phi() returns the correct
+    object.
+    """
+    momentum = Vector4.e_m_eta_phi(2, 1.777, 2.5, 1.23)
+    unittest.TestCase().assertAlmostEqual(momentum.e, 2)
+    unittest.TestCase().assertAlmostEqual(momentum.eta, 2.5)
+    unittest.TestCase().assertAlmostEqual(momentum.phi, 1.23)
+    unittest.TestCase().assertAlmostEqual(momentum.m, 1.777)
+    unittest.TestCase().assertAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_e_m_eta_phi()
+
+def test_e_m_eta_phi_vectorized():
+    """
+    Check that instantiation with e_m_eta_phi() returns the correct
+    object.
+    """
+    x1 = np.array([1.5, 2.5, 3.5, 4.5])
+    x2 = np.array([0.105, 1.105, 2.105, 3.105])
+    x3 = np.array([1.23]*4)
+    x4 = np.array([1.777]*4)
+    momentum = Vector4.e_m_eta_phi(x1, x2, x3, x4)
+
+    assertListAlmostEqual(momentum.e, np.arange(4) + 1.5)
+    assertListAlmostEqual(momentum.m, np.arange(4) + 0.105)
+    assertListAlmostEqual(momentum.eta, [1.23]*4)
+    assertListAlmostEqual(momentum.phi, [1.777]*4)
+    assertListAlmostEqual(momentum.e**2, momentum.p**2 + momentum.m**2)
+test_e_m_eta_phi_vectorized()
+
+def test_type_m_vectorized():
+    """
+    Check that the mass is real valued.
+    """
+    x1 = np.array([0.105, 1.105, 2.105, 3.105])
+    x2 = np.array([1.5, 2.5, 3.5, 4.5])
+    x3 = np.array([1.23]*4)
+    x4 = np.array([1.777]*4)
+    momentum = Vector4.e_m_eta_phi(2, 1.777, 2.5, 1.23)
+    unittest.TestCase().assertEqual(momentum.m.dtype, 'float')
+
+test_type_m_vectorized()
