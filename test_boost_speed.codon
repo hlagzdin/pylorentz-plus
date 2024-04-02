@@ -1,0 +1,43 @@
+from python import time
+from __init__ import Vector4
+
+def test3():
+
+    start_time = time.time()
+
+    # Define the initial Lorentz vector (px, py, pz, E)
+    vector = Vector4(1.0, 2.0, 3.0, 4.0)
+    temp = Vector4(1.0, 2.0, 3.0, 4.0)
+
+    # Define the number of boost iterations
+    num_boosts = 10000
+
+    # Perform the Lorentz boost in a loop
+    for _ in range(num_boosts):
+        # Perform the Lorentz boost along the x-axis
+        vector1 = vector.boost(1.0,0.0,0.0, 1.1547,mode = 'gamma')
+
+        # Perform the Lorentz boost along the y-axis
+        vector2 = vector.boost(0.0,1.0,0.0,1.09109,mode = 'gamma')
+
+        # Perform the Lorentz boost along the z-axis
+        vector3 = vector.boost(0.0,0.0,1.0,1.04828,mode = 'gamma')
+
+        vector = temp
+
+    end_time = time.time()
+
+    # Print out the original and boosted vectors
+    print("Original vector: Px=",vector[1], "Py={}",vector[2], "Pz=",vector[3], "E=",vector[0])
+
+    # Print out the duration
+    print("Boost time for",num_boosts," iterations:", end_time - start_time , "seconds")
+
+    # Print out the boosted vectors along x, y, and z axes
+    print("Vector1: Px=",vector1[1], "Py=",vector1[2], "Pz=",vector1[3], "E=",vector1[0])
+    print("Vector2: Px=",vector2[1], "Py=",vector2[2], "Pz=",vector2[3], "E=",vector2[0])
+    print("Vector3: Px=",vector3[1], "Py=",vector3[2], "Pz=",vector3[3], "E=",vector3[0])
+
+
+if __name__ == "__main__":
+    test3()
