@@ -1,0 +1,56 @@
+import numpy as np
+import time
+from __init__ import Vector4
+
+def phase():
+    # Define the initial beam vector
+    beam = Vector4(1.0, 2.0, 3.0, 4.0)
+
+    # Rotation angles in radians
+    angleX = 90.0 * np.pi / 180.0  # Rotate around x-axis by 90 degrees
+    angleY = 90.0 * np.pi / 180.0  # Rotate around y-axis by 90 degrees
+    angleZ = 90.0 * np.pi / 180.0  # Rotate around z-axis by 90 degrees
+
+    # Start the timer
+    start_time = time.time()
+
+    # Number of iterations
+    num = 100000
+
+    for _ in range(num):
+        # Rotate the beam vector around x-axis
+        beam_rotatedX = beam.rotate_X(angleX)
+
+        # Rotate the beam vector around y-axis
+        beam_rotatedY = beam.rotate_Y(angleY)
+
+        # Rotate the beam vector around z-axis
+        beam_rotatedZ = beam.rotate_Z(angleZ)
+
+    # Stop the timer
+    end_time = time.time()
+
+    # Print out the rotated beam vector components
+    print("Rotated Beam Vector (X):")
+    print("Px:", beam_rotatedX[1])
+    print("Py:", beam_rotatedX[2])
+    print("Pz:", beam_rotatedX[3])
+    print("E :", beam_rotatedX[0])
+
+    print("Rotated Beam Vector (Y):")
+    print("Px:", beam_rotatedY[1])
+    print("Py:", beam_rotatedY[2])
+    print("Pz:", beam_rotatedY[3])
+    print("E :", beam_rotatedY[0])
+
+    print("Rotated Beam Vector (Z):")
+    print("Px:", beam_rotatedZ[1])
+    print("Py:", beam_rotatedZ[2])
+    print("Pz:", beam_rotatedZ[3])
+    print("E :", beam_rotatedZ[0])
+
+    # Print out the duration
+    print("Rotation time:", end_time - start_time, "seconds")
+
+if __name__ == "__main__":
+    phase()
